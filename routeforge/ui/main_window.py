@@ -12,6 +12,8 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from routeforge.core.model.model import RouteData
+
 
 class PlaceholderView(QWidget):
     """이식 전 임시 뷰. 실제 뷰로 교체 예정."""
@@ -97,6 +99,13 @@ class MainWindow(QMainWindow):
 
     # --- 메뉴/툴바 ---
     def _build_menu(self) -> None:
+        file_menu = self.menuBar().addMenu("파일")
+        open_act = QAction("열기...", self)
+        open_act.setShortcut(QKeySequence.StandardKey.Open)
+        open_act.triggered.connect(self._on_open_file)
+        file_menu.addAction(open_act)
+
+
         view_menu = self.menuBar().addMenu("보기")
 
         actions = [
@@ -116,6 +125,21 @@ class MainWindow(QMainWindow):
         real_view_act.setShortcut(QKeySequence("Ctrl+R"))
         real_view_act.triggered.connect(self._open_real_view)
         view_menu.addAction(real_view_act)
+
+    # --- 파일 열기 핸들러 (기존 FileController/EventHandler 연결) ---
+    def _on_open_file(self) -> None:
+        # TODO: 기존 FileController/EventHandler의 파일 열기 로직 호출
+        # 예: self.event_handler.reload() 또는 self.file_ctrl.open(...)
+        # 그 결과로 alignments/bvedata/profile이 만들어지면,
+        # 그 지점에서 self._broadcast_data(RouteData(...))를 호출한다.
+        pass
+
+    # --- 데이터 브로드캐스트 (SSOT → 모든 뷰) ---
+    def _broadcast_data(self, data: RouteData) -> None:
+        self.route_data = data
+        for view in self.views.values():
+            if hasattr(view, "set_data"):
+                view.set_data(data)
 
     def _open_real_view(self) -> None:
         # TODO: RealViewWindow 구현 후 연결
