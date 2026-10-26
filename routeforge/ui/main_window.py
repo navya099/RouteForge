@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import (
 
 from routeforge.core.loader import RouteLoader
 from routeforge.core.model.model import RouteData
+from routeforge.ui.views.section_view import SectionView
 
 
 class PlaceholderView(QWidget):
@@ -56,10 +57,11 @@ class MainWindow(QMainWindow):
         self.stack = QStackedWidget()
         self.plan_view = PlanView()
         self.profile_view = ProfileView()
+        self.section_view = SectionView()
         self.views = {
             self.VIEW_PLAN: self.plan_view,
             self.VIEW_PROFILE: self.profile_view,
-            self.VIEW_SECTION: PlaceholderView("Section"),
+            self.VIEW_SECTION: self.section_view,
             self.VIEW_3D: PlaceholderView("Wireframe3D"),
         }
         for view in self.views.values():
