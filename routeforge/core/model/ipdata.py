@@ -1,9 +1,10 @@
 from dataclasses import dataclass, field
 
-from utils.curvedirection import CurveDirection
-from utils.curvetype import CurveType
-from model.segment import CurveSegment, SpiralSegment
-from utils.vector2 import Vector2
+from routeforge.core.model.segment import CurveSegment, SpiralSegment
+from routeforge.utils.curvedirection import CurveDirection
+from routeforge.utils.curvetype import CurveType
+from routeforge.utils.vector2 import Vector2
+
 
 @dataclass
 class BasePoint:

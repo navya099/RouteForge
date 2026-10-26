@@ -11,6 +11,7 @@ from matplotlib.backends.backend_qtagg import (
 from matplotlib.figure import Figure
 from PyQt6.QtWidgets import QVBoxLayout
 
+from routeforge.core.model.ipdata import IPdata
 from routeforge.core.model.model import RouteData
 from routeforge.ui.views.base_view import BaseView
 
@@ -50,7 +51,7 @@ class PlanView(BaseView):
     def redraw(self) -> None:
         self.ax.clear()
 
-        if self._data is None:
+        if self._data is None or not self._data.has_alignment:
             self.ax.axis("off")
             self.canvas.draw()
             return
@@ -58,7 +59,6 @@ class PlanView(BaseView):
         self._apply_decoration("평면", "X(N)", "Y(E)")
 
         alignments = self._data.alignments
-        bvedata = self._data.bvedata
 
         # 1) IP 라인
         x_ip = [a.coord.x for a in alignments]
@@ -67,26 +67,37 @@ class PlanView(BaseView):
             self.ax.plot(x_ip, y_ip, color="gray", label="IP라인")
             self._set_fixed_view(x_ip, y_ip)
 
-        # 2) IP 제원 (BP / IPn / EP)
+        # 2) IP 제원
+
         n = len(alignments)
         for i, a in enumerate(alignments):
             if i == 0:
                 text = "BP"
             elif i == n - 1:
                 text = "EP"
+            elif isinstance(a, IPdata):
+                radius_text = self._format_radius(a.radius)
+                text = f"IP{a.ipno}\nR={radius_text}"
             else:
-                text = f"IP{a.ipno}\nR={a.radius}"
+                # EndPoint가 중간에 있는 비정상 케이스 — 방어적 표시
+                text = f"BP/EP?"
             self.ax.text(a.coord.x, a.coord.y, text)
 
         # 3) 곡선(FL)
-        if bvedata is not None and getattr(bvedata, "coords", None):
-            x_fl = [c.x for c in bvedata.coords]
-            y_fl = [c.y for c in bvedata.coords]
+        if self._data.has_bvedata:
+            x_fl = [c.x for c in self._data.bvedata.coords]
+            y_fl = [c.y for c in self._data.bvedata.coords]
             if x_fl and y_fl:
                 self.ax.plot(x_fl, y_fl, color="red", label="FL")
 
         self.ax.legend()
         self.canvas.draw()
+
+    @staticmethod
+    def _format_radius(radius: float | tuple[float, ...]) -> str:
+        if isinstance(radius, tuple):
+            return ", ".join(f"{r:g}" for r in radius)
+        return f"{radius:g}"
 
     # --- 기존 plot.py 헬퍼 이식 ---
     def _apply_decoration(

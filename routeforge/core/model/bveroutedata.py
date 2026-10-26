@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from utils.math_utils import get_block_index
-from model.bvetrack import Curve, Pitch, Station
-from utils.vector3 import Vector3
+from routeforge.core.model.bvetrack import Curve, Pitch, Station
+from routeforge.utils.math_utils import get_block_index
+from routeforge.utils.vector3 import Vector3
 
 
 @dataclass
