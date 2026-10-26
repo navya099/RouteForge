@@ -12,6 +12,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from routeforge.core.loader import RouteLoader
 from routeforge.core.model.model import RouteData
 
 
@@ -40,46 +41,13 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("RouteForge")
         self.resize(1200, 800)
 
+        self.route_loader = RouteLoader()  # ← 추가
+        self.route_data: RouteData | None = None
+
         self._build_central()
         self._build_docks()
         self._build_menu()
         self._build_statusbar()
-
-        # TODO: 임시 더미 데이터 — 파서 연결 후 제거
-        self._load_dummy_data()
-
-    def _load_dummy_data(self) -> None:
-        from types import SimpleNamespace
-
-        def pt(x, y):
-            return SimpleNamespace(x=x, y=y)
-
-        # --- alignment 더미 ---
-        alignments = [
-            SimpleNamespace(coord=pt(0, 0), ipno=0, radius=0),
-            SimpleNamespace(coord=pt(200, 100), ipno=1, radius=400),
-            SimpleNamespace(coord=pt(400, 100), ipno=2, radius=300),
-            SimpleNamespace(coord=pt(600, 0), ipno=3, radius=0),
-        ]
-
-        # --- bvedata 더미 ---
-        bvedata = SimpleNamespace(
-            coords=[
-                pt(0, 0), pt(100, 40), pt(200, 100), pt(300, 120),
-                pt(400, 100), pt(500, 80), pt(600, 0),
-            ]
-        )
-
-        # --- profile 더미 (실제 Profile 인스턴스) ---
-        from routeforge.Profile.profile import Profile
-        profile = Profile("dummy")
-        profile.pvis.add_pvi(0, 0)
-        profile.pvis.add_pvi(200, 5)
-        profile.pvis.add_pvi(400, 3)
-        profile.pvis.add_pvi(600, 0)
-
-        data = RouteData(alignments=alignments, bvedata=bvedata, profile=profile)
-        self._broadcast_data(data)
 
     def _build_central(self) -> None:
         from routeforge.ui.views.plan_view import PlanView
@@ -139,15 +107,35 @@ class MainWindow(QMainWindow):
         real_view_act.triggered.connect(self._open_real_view)
         view_menu.addAction(real_view_act)
 
-    # --- 파일 열기 핸들러 (기존 FileController/EventHandler 연결) ---
+    # --- 파일 열기 ---
     def _on_open_file(self) -> None:
-        # TODO: 기존 FileController/EventHandler의 파일 열기 로직 호출
-        # 예: self.event_handler.reload() 또는 self.file_ctrl.open(...)
-        # 그 결과로 alignments/bvedata/profile이 만들어지면,
-        # 그 지점에서 self._broadcast_data(RouteData(...))를 호출한다.
-        pass
+        from PyQt6.QtWidgets import QFileDialog, QMessageBox
 
-    # --- 데이터 브로드캐스트 (SSOT → 모든 뷰) ---
+        path, _ = QFileDialog.getOpenFileName(
+            self, "루트 파일 열기", "",
+            "BVE Route (*.csv *.rw *.txt);;모든 파일 (*)",
+        )
+        if not path:
+            return
+
+        try:
+            data = self.route_loader.load(path)
+        except Exception as e:  # noqa: BLE001
+            QMessageBox.critical(self, "파일 열기 실패", str(e))
+            return
+
+        if data is None:
+            QMessageBox.warning(self, "로드 실패", "루트 데이터를 추출하지 못했습니다.")
+            return
+
+        self._broadcast_data(data)
+
+        if data.has_bvedata:
+            self.status_s.setText(
+                f"s: {data.bvedata.firstblock:.1f} ~ {data.bvedata.lastblock:.1f}"
+            )
+
+    # --- SSOT 브로드캐스트 ---
     def _broadcast_data(self, data: RouteData) -> None:
         self.route_data = data
         for view in self.views.values():
@@ -176,3 +164,16 @@ class MainWindow(QMainWindow):
     def _right_area(self):
         from PyQt6.QtCore import Qt
         return Qt.DockWidgetArea.RightDockWidgetArea
+
+    def load_route_file(self, path: str) -> None:
+        data = self.route_loader.load(path)
+        if data is None:
+            from PyQt6.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "로드 실패", "루트 데이터를 추출하지 못했습니다.")
+            return
+
+        self._broadcast_data(data)
+
+        # 상태바 갱신
+        if data.has_bvedata:
+            self.status_s.setText(f"s: {data.bvedata.firstblock:.1f} ~ {data.bvedata.lastblock:.1f}")
