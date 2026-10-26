@@ -90,6 +90,19 @@ class PlanView(BaseView):
             if x_fl and y_fl:
                 self.ax.plot(x_fl, y_fl, color="red", label="FL")
 
+        # 4) 오브젝트
+        if self._data.has_objects and self._data.has_bvedata:
+            from routeforge.core.geometry import to_plan_xy
+            ox, oy = [], []
+            for obj in self._data.objects:
+                try:
+                    x, y = to_plan_xy(self._data.bvedata, obj.track_position, obj.offset)
+                    ox.append(x)
+                    oy.append(y)
+                except Exception:
+                    continue
+            if ox and oy:
+                self.ax.scatter(ox, oy, color="blue", s=10, label=f"오브젝트({len(ox)})", zorder=5)
         self.ax.legend()
         self.canvas.draw()
 

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import math
 
-from model.bveroutedata import BVERouteData
+from routeforge.core.model.bveroutedata import BVERouteData
 from routeforge.utils.vector3 import Vector3
 
 
