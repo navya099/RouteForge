@@ -43,11 +43,38 @@ class MainWindow(QMainWindow):
         self._build_menu()
         self._build_statusbar()
 
-    # --- 중앙: QStackedWidget ---
+        # TODO: 임시 더미 데이터 — 파서 연결 후 제거
+        self._load_dummy_data()
+
+    def _load_dummy_data(self) -> None:
+        from types import SimpleNamespace
+        from routeforge.core.model import RouteData
+
+        def pt(x, y):
+            return SimpleNamespace(x=x, y=y)
+
+        alignments = [
+            SimpleNamespace(coord=pt(0, 0), ipno=0, radius=0),
+            SimpleNamespace(coord=pt(200, 100), ipno=1, radius=400),
+            SimpleNamespace(coord=pt(400, 100), ipno=2, radius=300),
+            SimpleNamespace(coord=pt(600, 0), ipno=3, radius=0),
+        ]
+        bvedata = SimpleNamespace(
+            coords=[pt(0, 0), pt(100, 40), pt(200, 100), pt(300, 120),
+                    pt(400, 100), pt(500, 80), pt(600, 0)]
+        )
+        data = RouteData(alignments=alignments, bvedata=bvedata, profile=None)
+        for view in self.views.values():
+            if hasattr(view, "set_data"):
+                view.set_data(data)
+
     def _build_central(self) -> None:
+        from routeforge.ui.views.plan_view import PlanView
+
         self.stack = QStackedWidget()
+        self.plan_view = PlanView()
         self.views = {
-            self.VIEW_PLAN: PlaceholderView("Plan"),
+            self.VIEW_PLAN: self.plan_view,
             self.VIEW_PROFILE: PlaceholderView("Profile"),
             self.VIEW_SECTION: PlaceholderView("Section"),
             self.VIEW_3D: PlaceholderView("Wireframe3D"),
