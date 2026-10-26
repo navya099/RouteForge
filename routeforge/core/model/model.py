@@ -33,10 +33,4 @@ class RouteData:
 
     @property
     def has_profile(self) -> bool:
-        if self.profile is None:
-            return False
-        try:
-            return len(self.profile.pvis) > 0
-        except TypeError:
-            # 컬렉션이 len을 지원하지 않는 경우의 폴백
-            return bool(getattr(self.profile, "pvis", None))
+        return self.profile is not None and len(self.profile.pvis) > 0

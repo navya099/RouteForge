@@ -50,25 +50,36 @@ class MainWindow(QMainWindow):
 
     def _load_dummy_data(self) -> None:
         from types import SimpleNamespace
-        from routeforge.core.model.model import RouteData
 
         def pt(x, y):
             return SimpleNamespace(x=x, y=y)
 
+        # --- alignment 더미 ---
         alignments = [
             SimpleNamespace(coord=pt(0, 0), ipno=0, radius=0),
             SimpleNamespace(coord=pt(200, 100), ipno=1, radius=400),
             SimpleNamespace(coord=pt(400, 100), ipno=2, radius=300),
             SimpleNamespace(coord=pt(600, 0), ipno=3, radius=0),
         ]
+
+        # --- bvedata 더미 ---
         bvedata = SimpleNamespace(
-            coords=[pt(0, 0), pt(100, 40), pt(200, 100), pt(300, 120),
-                    pt(400, 100), pt(500, 80), pt(600, 0)]
+            coords=[
+                pt(0, 0), pt(100, 40), pt(200, 100), pt(300, 120),
+                pt(400, 100), pt(500, 80), pt(600, 0),
+            ]
         )
-        data = RouteData(alignments=alignments, bvedata=bvedata, profile=None)
-        for view in self.views.values():
-            if hasattr(view, "set_data"):
-                view.set_data(data)
+
+        # --- profile 더미 (실제 Profile 인스턴스) ---
+        from routeforge.Profile.profile import Profile
+        profile = Profile("dummy")
+        profile.pvis.add_pvi(0, 0)
+        profile.pvis.add_pvi(200, 5)
+        profile.pvis.add_pvi(400, 3)
+        profile.pvis.add_pvi(600, 0)
+
+        data = RouteData(alignments=alignments, bvedata=bvedata, profile=profile)
+        self._broadcast_data(data)
 
     def _build_central(self) -> None:
         from routeforge.ui.views.plan_view import PlanView
