@@ -35,9 +35,48 @@ RouteForge는 OPENBVE 노선 제작 워크플로를 단순화합니다. 평면·
 
 ## 설치
 
-```bash
+
 git clone https://github.com/<your-org>/routeforge.git
 cd routeforge
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -e .
+
+
+## 실행
+
+python -m routeforge
+
+
+## 프로젝트 구조
+
+routeforge/
+├── routeforge/
+│   ├── core/          # 데이터 모델, 선형 파서, CSV 파서/추출기
+│   ├── ui/            # PyQt 메인 윈도우, 팔레트, 뷰 위젯
+│   ├── views/         # Plan/Profile/Section/Wireframe3D/RealView
+│   └── __main__.py
+├── tests/
+├── docs/
+└── README.md
+
+
+## 기여 규칙
+
+브랜치: main ← develop ← feature/*, fix/*
+
+커밋: Conventional Commits
+
+스코프: ui, core, csv, parser, view3d, realview
+
+버전: SemVer 2.0 (MAJOR.MINOR.PATCH), 태그는 v0.1.0 형식
+
+
+## 리이센스
+
+
+## 5. 라이선스 관련 주의
+
+OPENBVE 자체는 GPL 계열로 배포됩니다. RouteForge는 **OPENBVE의 코드를 링크하지 않고 CSV 파일만 주고받는 별도 프로그램**이므로, MIT 같은 관대한 라이선스를 써도 법적으로 문제는 없습니다. 다만 OPENBVE 오브젝트 파일 포맷을 파싱하는 코드를 OPENBVE 소스에서 직접 가져온다면 GPL 전염이 발생할 수 있으니, **포맷 명세를 문서 기반으로 독립 구현**하는 것을 권장합니다. 초기에는 MIT로 시작하고, 나중에 필요하면 변경하세요.
+
+---
