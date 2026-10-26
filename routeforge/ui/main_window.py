@@ -53,16 +53,20 @@ class MainWindow(QMainWindow):
     def _build_central(self) -> None:
         from routeforge.ui.views.plan_view import PlanView
         from routeforge.ui.views.profile_view import ProfileView
+        from routeforge.ui.views.section_view import SectionView
+        from routeforge.ui.views.wireframe3d_view import Wireframe3DView
 
         self.stack = QStackedWidget()
         self.plan_view = PlanView()
         self.profile_view = ProfileView()
         self.section_view = SectionView()
+        self.wireframe3d_view = Wireframe3DView()  # ← 추가
+
         self.views = {
             self.VIEW_PLAN: self.plan_view,
             self.VIEW_PROFILE: self.profile_view,
             self.VIEW_SECTION: self.section_view,
-            self.VIEW_3D: PlaceholderView("Wireframe3D"),
+            self.VIEW_3D: self.wireframe3d_view,  # ← 연결
         }
         for view in self.views.values():
             self.stack.addWidget(view)
