@@ -67,6 +67,21 @@ class ProfileView(BaseView):
             self.ax.set_xlim(x_min - x_pad, x_max + x_pad)
             self.ax.set_ylim(y_min - y_pad, y_max + y_pad)
 
+            # 4) 오브젝트 (종단 뷰)
+            if self._data.has_objects and self._data.has_profile:
+                ox, oy = [], []
+                for obj in self._data.objects:
+                    try:
+                        # 해당 위치의 절대 표고 + 오브젝트 높이
+                        base_el = self._data.profile.elevation_at_station(obj.track_position)
+                        ox.append(obj.track_position)
+                        oy.append(base_el + obj.height)
+                    except Exception:
+                        continue
+
+                if ox and oy:
+                    self.ax.scatter(ox, oy, color="blue", s=5, label=f"오브젝트({len(ox)})", zorder=5)
+
         self.ax.legend()
         self.canvas.draw()
 
