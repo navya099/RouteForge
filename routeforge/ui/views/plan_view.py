@@ -11,7 +11,7 @@ from matplotlib.backends.backend_qtagg import (
 from matplotlib.figure import Figure
 from PyQt6.QtWidgets import QVBoxLayout
 
-from routeforge.core.model import RouteData
+from routeforge.core.model.model import RouteData
 from routeforge.ui.views.base_view import BaseView
 
 # 한글 폰트 (전역). PyQt 앱 시작 전에 한 번만 설정해도 되지만,

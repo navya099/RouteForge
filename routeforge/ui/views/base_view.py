@@ -6,7 +6,7 @@ from abc import abstractmethod
 
 from PyQt6.QtWidgets import QWidget
 
-from routeforge.core.model import RouteData
+from routeforge.core.model.model import RouteData
 
 
 class BaseView(QWidget):

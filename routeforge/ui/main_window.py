@@ -48,7 +48,7 @@ class MainWindow(QMainWindow):
 
     def _load_dummy_data(self) -> None:
         from types import SimpleNamespace
-        from routeforge.core.model import RouteData
+        from routeforge.core.model.model import RouteData
 
         def pt(x, y):
             return SimpleNamespace(x=x, y=y)
