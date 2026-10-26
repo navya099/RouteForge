@@ -72,12 +72,14 @@ class MainWindow(QMainWindow):
 
     def _build_central(self) -> None:
         from routeforge.ui.views.plan_view import PlanView
+        from routeforge.ui.views.profile_view import ProfileView
 
         self.stack = QStackedWidget()
         self.plan_view = PlanView()
+        self.profile_view = ProfileView()
         self.views = {
             self.VIEW_PLAN: self.plan_view,
-            self.VIEW_PROFILE: PlaceholderView("Profile"),
+            self.VIEW_PROFILE: self.profile_view,
             self.VIEW_SECTION: PlaceholderView("Section"),
             self.VIEW_3D: PlaceholderView("Wireframe3D"),
         }
