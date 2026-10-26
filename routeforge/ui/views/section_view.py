@@ -51,7 +51,7 @@ class SectionView(BaseView):
 
         # MVP: 측점이 지정되지 않았으면 bvedata 중앙을 기본값으로
         if self._station is None and data.has_bvedata:
-            self._station = (data.bvedata.firstblock + data.bvedata.lastblock) / 2
+            self._station = 120
 
         self.redraw()
 
@@ -90,6 +90,17 @@ class SectionView(BaseView):
             f"  s={self._station:.1f}\n  EL={elevation:.3f}",
             va="bottom", ha="left", fontsize=9,
         )
+        # --- 현재 측점 근처 오브젝트 ---
+        if self._data.has_objects:
+            tolerance = 1.0  # ±1m 이내 오브젝트만 (MVP)
+            nearby = [
+                obj for obj in self._data.objects
+                if abs(obj.track_position - self._station) <= tolerance
+            ]
+            if nearby:
+                ox = [obj.offset for obj in nearby]
+                oy = [elevation + obj.height for obj in nearby]
+                self.ax.scatter(ox, oy, color="blue", s=30, label=f"오브젝트({len(nearby)})", zorder=6)
 
         # --- 표시 범위: 점 주변 고정 윈도우 ---
         # MVP: 단일 점이라 주변 여백을 고정 크기로 잡는다.
