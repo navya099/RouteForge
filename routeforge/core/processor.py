@@ -117,14 +117,12 @@ class RouteProcessor:
         변환대상- coord와 direction
         """
         for coord in self.current_route.coords:
-            coord.x = coord.x
-            coord.y = coord.z
-            coord.z = coord.y
+            # 튜플 언패킹을 이용한 안전한 스왑
+            coord.y, coord.z = coord.z, coord.y
 
         for direction in self.current_route.directions:
-            direction.x = direction.x
-            direction.y = direction.z
-            direction.z = direction.y
+            # 방향 벡터도 동일하게 수정
+            direction.y, direction.z = direction.z, direction.y
 
     def _build_station_coord_map(self):
         """곡선 station → 좌표 매핑 딕셔너리 생성"""
