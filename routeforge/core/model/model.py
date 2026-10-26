@@ -8,6 +8,17 @@ from routeforge.Profile.profile import Profile
 from routeforge.core.model.bveroutedata import BVERouteData
 from routeforge.core.model.ipdata import BasePoint
 
+@dataclass
+class PlacedObject:
+    """선형 위에 배치된 오브젝트 인스턴스."""
+    track_position: float               # s (m)
+    type_index: int = -1                # FreeObj.Type (구조체 인덱스)
+    object_path: str = ""               # 해석된 경로 (없으면 빈 문자열)
+    offset: float = 0.0                 # Position.x
+    height: float = 0.0                 # Position.y
+    yaw: float = 0.0                    # FreeObj.Yaw
+    pitch: float = 0.0                  # FreeObj.Pitch
+    roll: float = 0.0                   # FreeObj.Roll
 
 @dataclass
 class RouteData:
@@ -21,6 +32,7 @@ class RouteData:
     alignments: list[BasePoint] = field(default_factory=list)
     bvedata: BVERouteData | None = None
     profile: Profile | None = None
+    objects: list[PlacedObject] = field(default_factory=list)
 
     # --- 편의 접근자 ---
     @property
@@ -34,3 +46,7 @@ class RouteData:
     @property
     def has_profile(self) -> bool:
         return self.profile is not None and len(self.profile.pvis) > 0
+
+    @property
+    def has_objects(self) -> bool:
+        return bool(self.objects)
