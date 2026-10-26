@@ -47,8 +47,12 @@ class RouteLoader:
         self._app.profile = profile
         self._app.alignments = alignments
 
+        # 오브젝트 추출
+        objects = self._app.parser.extract_objects()
+
         return RouteData(
             alignments=alignments,
             bvedata=bve_data,
             profile=profile,
+            objects=objects,
         )
